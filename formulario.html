@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Personalize o seu MOTOSCOPE V6</title>
+<style>
+  :root{
+    --bg:#0a0a0c; --bg2:#111116; --card:#16161d; --line:#26262f;
+    --red:#e11d1d; --red2:#ff3b3b; --steel:#c7ccd6; --ink:#f4f5f7; --mut:#8b8f99;
+    --ok:#1db954; --radius:16px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(1200px 600px at 50% -10%, rgba(225,29,29,.22), transparent 60%),
+      radial-gradient(900px 500px at 100% 110%, rgba(225,29,29,.10), transparent 60%),
+      var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    line-height:1.45; -webkit-font-smoothing:antialiased;
+    padding:22px 16px 60px; min-height:100dvh;
+  }
+  .wrap{max-width:560px;margin:0 auto}
+  .brand{text-align:center;margin:6px 0 22px}
+  .brand .v6{
+    font-weight:900; letter-spacing:.5px; font-size:30px; line-height:1;
+    background:linear-gradient(180deg,#fff, #b8bcc6 60%, #7d818b);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 1px 0 rgba(0,0,0,.4);
+  }
+  .brand .v6 b{color:var(--red2);-webkit-text-fill-color:var(--red2)}
+  .brand .sub{color:var(--mut);font-size:12.5px;letter-spacing:2px;text-transform:uppercase;margin-top:8px}
+  .intro{
+    background:linear-gradient(180deg,rgba(225,29,29,.12),rgba(225,29,29,0));
+    border:1px solid var(--line); border-radius:var(--radius);
+    padding:16px 16px; margin-bottom:20px; text-align:center; color:#e7e8ec; font-size:14.5px;
+  }
+  .intro strong{color:#fff}
+  .field{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:16px; margin-bottom:14px;
+  }
+  .field.req{border-left:3px solid var(--red)}
+  label.q{display:block;font-weight:700;font-size:15px;margin-bottom:4px;color:#fff}
+  .hint{color:var(--mut);font-size:12.5px;margin:0 0 12px}
+  .num{color:var(--red2);font-weight:900;margin-right:6px}
+  input[type=text],input[type=email],input[type=tel]{
+    width:100%; background:#0d0d11; border:1px solid var(--line); color:var(--ink);
+    border-radius:11px; padding:13px 14px; font-size:16px; outline:none; transition:border-color .15s;
+  }
+  input:focus{border-color:var(--red)}
+  input::placeholder{color:#5c606a}
+  /* upload */
+  .up{position:relative}
+  .up input[type=file]{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
+  .drop{
+    display:flex;align-items:center;gap:14px; border:1.5px dashed #35353f; border-radius:12px;
+    padding:14px; background:#0d0d11; transition:border-color .15s,background .15s;
+  }
+  .up:active .drop,.drop.has{border-color:var(--red);background:#120e0f}
+  .thumb{
+    width:60px;height:60px;border-radius:10px;flex:0 0 auto;background:#000 center/cover no-repeat;
+    border:1px solid var(--line); display:flex;align-items:center;justify-content:center;font-size:24px;color:#3a3a44
+  }
+  .drop .txt{min-width:0}
+  .drop .txt b{display:block;font-size:14px;color:#fff}
+  .drop .txt span{font-size:12px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+  .btn{
+    width:100%;border:0;border-radius:13px;padding:16px;font-size:16.5px;font-weight:800;letter-spacing:.3px;
+    color:#fff;background:linear-gradient(180deg,var(--red2),var(--red));cursor:pointer;margin-top:6px;
+    box-shadow:0 8px 22px rgba(225,29,29,.28); transition:transform .06s,filter .15s;
+  }
+  .btn:active{transform:translateY(1px)}
+  .btn[disabled]{filter:grayscale(.5) brightness(.7);cursor:default;box-shadow:none}
+  .foot{color:var(--mut);font-size:11.5px;text-align:center;margin-top:18px;line-height:1.6}
+  /* sucesso */
+  .done{display:none;text-align:center;padding:10px 4px}
+  .done.show{display:block;animation:pop .35s ease}
+  @keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .check{width:76px;height:76px;border-radius:50%;margin:6px auto 14px;background:rgba(29,185,84,.12);
+    border:2px solid var(--ok);display:flex;align-items:center;justify-content:center;font-size:40px;color:var(--ok)}
+  .done h2{margin:0 0 8px;font-size:22px}
+  .done p{color:#d7d9de;font-size:15px;margin:0 auto 10px;max-width:420px}
+  .dlbtn{display:inline-block;margin-top:14px;padding:15px 26px;border-radius:13px;font-weight:800;font-size:16px;
+    color:#fff;text-decoration:none;background:linear-gradient(180deg,#2a2a34,#16161d);border:1px solid #3a3a46}
+  .dlbtn.primary{background:linear-gradient(180deg,var(--red2),var(--red));border:0;box-shadow:0 8px 22px rgba(225,29,29,.28)}
+  .err{color:#ff6b6b;font-size:13px;text-align:center;margin-top:10px;min-height:16px}
+  .spin{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-3px;margin-right:8px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand">
+      <div class="v6">MOTOSCOPE <b>V6</b></div>
+      <div class="sub">Personalize o seu software</div>
+    </div>
+
+    <form id="form">
+      <div class="intro">
+        Falta pouco pra deixar o osciloscópio com <strong>a cara da sua oficina</strong>.
+        Preencha abaixo e envie suas imagens — o resto é com a gente.
+      </div>
+
+      <div class="field req">
+        <label class="q" for="email">E-mail usado na compra</label>
+        <p class="hint">É ele que liga tudo à sua conta. Use o mesmo do pagamento.</p>
+        <input type="email" id="email" placeholder="voce@email.com" autocomplete="email" required>
+      </div>
+
+      <div class="field req">
+        <label class="q" for="whats">Seu WhatsApp</label>
+        <p class="hint">Pra gente te avisar quando estiver pronto.</p>
+        <input type="tel" id="whats" placeholder="(00) 00000-0000" autocomplete="tel" required>
+      </div>
+
+      <div class="field req">
+        <label class="q"><span class="num">1</span>Qual nome você quer que apareça dentro do seu software?</label>
+        <p class="hint">Ex.: o nome da sua oficina ou o seu nome.</p>
+        <input type="text" id="nome" placeholder="Ex.: DECO MOTOS" maxlength="40" required>
+      </div>
+
+      <div class="field req">
+        <label class="q"><span class="num">2</span>Foto da tela de abertura</label>
+        <p class="hint">A imagem que aparece ao abrir, ao lado da logo do MOTOSCOPE V6.</p>
+        <div class="up">
+          <input type="file" id="f_splash" accept="image/*" required>
+          <div class="drop" id="d_splash"><div class="thumb">＋</div><div class="txt"><b>Enviar imagem</b><span>Toque para escolher</span></div></div>
+        </div>
+      </div>
+
+      <div class="field req">
+        <label class="q"><span class="num">3</span>Foto ao lado do seu nome</label>
+        <p class="hint">Dentro do software, ao lado do nome que você escolheu. Pode ser <b>sua foto pessoal</b> ou a <b>logo da sua empresa</b>.</p>
+        <div class="up">
+          <input type="file" id="f_avatar" accept="image/*" required>
+          <div class="drop" id="d_avatar"><div class="thumb">＋</div><div class="txt"><b>Enviar imagem</b><span>Toque para escolher</span></div></div>
+        </div>
+      </div>
+
+      <div class="field req">
+        <label class="q"><span class="num">4</span>Logo da sua empresa (marca d'água)</label>
+        <p class="hint">Usada como marca d'água na tela e nos relatórios.</p>
+        <div class="up">
+          <input type="file" id="f_wm" accept="image/*" required>
+          <div class="drop" id="d_wm"><div class="thumb">＋</div><div class="txt"><b>Enviar imagem</b><span>Toque para escolher</span></div></div>
+        </div>
+      </div>
+
+      <button class="btn" id="send" type="submit">ENVIAR PERSONALIZAÇÃO</button>
+      <div class="err" id="err"></div>
+      <div class="foot">Suas imagens são enviadas com segurança e usadas só para personalizar o seu app.</div>
+    </form>
+
+    <div class="done" id="done">
+      <div class="check">✓</div>
+      <h2>Recebemos tudo! 🏁</h2>
+      <p>Assim que a personalização do seu software com as imagens que você enviou estiver pronta, <strong>entraremos em contato</strong>.</p>
+      <p>Agora você já pode fazer o download e começar a usar o nosso software nativo.</p>
+      <a class="dlbtn primary" id="dl" href="https://github.com/hpinstrutor-alt/motoscope/releases/latest/download/MOTOSCOPE-V6.apk">⬇️ Baixar o MOTOSCOPE V6</a>
+    </div>
+  </div>
+
+<script>
+const SUPA="https://wrmkhijsfcrcvrvypmns.supabase.co";
+const ANON="sb_publishable_HMwfDU3R6IFYqjsfgX7VoQ_glwxjnZt";
+const H={apikey:ANON,Authorization:"Bearer "+ANON,"Content-Type":"application/json"};
+const $=id=>document.getElementById(id);
+
+// preview + guarda o arquivo escolhido
+const files={splash:null,avatar:null,wm:null};
+function wireUp(inputId,dropId,key){
+  const inp=$(inputId), drop=$(dropId);
+  inp.addEventListener("change",()=>{
+    const f=inp.files&&inp.files[0]; if(!f)return;
+    files[key]=f;
+    const url=URL.createObjectURL(f);
+    drop.classList.add("has");
+    drop.querySelector(".thumb").style.backgroundImage=`url(${url})`;
+    drop.querySelector(".thumb").textContent="";
+    drop.querySelector(".txt b").textContent="Imagem escolhida ✓";
+    drop.querySelector(".txt span").textContent=f.name;
+  });
+}
+wireUp("f_splash","d_splash","splash");
+wireUp("f_avatar","d_avatar","avatar");
+wireUp("f_wm","d_wm","wm");
+
+// redimensiona no navegador (deixa o envio leve) -> data URI JPEG
+function toDataURL(file,maxDim,quality){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    img.onload=()=>{
+      let{width:w,height:h}=img;
+      const s=Math.min(1,maxDim/Math.max(w,h));
+      w=Math.round(w*s); h=Math.round(h*s);
+      const c=document.createElement("canvas"); c.width=w; c.height=h;
+      const ctx=c.getContext("2d"); ctx.drawImage(img,0,0,w,h);
+      resolve(c.toDataURL("image/jpeg",quality));
+    };
+    img.onerror=reject;
+    img.src=URL.createObjectURL(file);
+  });
+}
+
+$("form").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const err=$("err"); err.textContent="";
+  const email=$("email").value.trim();
+  const whats=$("whats").value.trim();
+  const nome=$("nome").value.trim();
+  if(!email||email.indexOf("@")<1){err.textContent="Confira o seu e-mail.";return;}
+  if(!files.splash||!files.avatar||!files.wm){err.textContent="Envie as 3 imagens.";return;}
+
+  const btn=$("send"); btn.disabled=true;
+  btn.innerHTML='<span class="spin"></span>Enviando...';
+  try{
+    const [splash,avatar,wm]=await Promise.all([
+      toDataURL(files.splash,1600,.85),
+      toDataURL(files.avatar,700,.9),
+      toDataURL(files.wm,900,.9)
+    ]);
+    const body={p_email:email,p_whatsapp:whats,p_nome:nome,p_splash:splash,p_avatar:avatar,p_watermark:wm};
+    const r=await fetch(SUPA+"/rest/v1/rpc/enviar_pedido_marca",{method:"POST",headers:H,body:JSON.stringify(body)});
+    const t=(await r.text()).replace(/"/g,"");
+    if(!r.ok||t!=="ok"){throw new Error(t||("HTTP "+r.status));}
+    $("form").style.display="none";
+    $("done").classList.add("show");
+    window.scrollTo({top:0,behavior:"smooth"});
+  }catch(ex){
+    err.textContent="Não consegui enviar ("+ex.message+"). Tente de novo ou fale no WhatsApp.";
+    btn.disabled=false; btn.textContent="ENVIAR PERSONALIZAÇÃO";
+  }
+});
+</script>
+</body>
+</html>
