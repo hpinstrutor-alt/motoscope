@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel de Versões · MOTOSCOPE V6</title>
+<style>
+  :root{
+    --bg:#080a0e; --panel:#11161f; --line:rgba(255,255,255,.08);
+    --ink:#eef2f7; --muted:#8b95a8; --faint:#5b6474;
+    --red:#ff2e2e; --phos:#25e28c; --amber:#ffc140; --blue:#2f7de8;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    --mono:ui-monospace,"Cascadia Mono","JetBrains Mono",Menlo,monospace;
+  }
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans)}
+  .wrap{max-width:1000px;margin:0 auto;padding:26px 20px}
+  h1{font-size:24px;font-weight:900;margin:0 0 2px;letter-spacing:-.01em}
+  h1 .v{color:var(--red);font-style:italic}
+  .sub{color:var(--muted);font-size:14px;margin:0 0 20px}
+  .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+  input{background:#0c1017;border:1px solid var(--line);border-radius:8px;color:var(--ink);
+    padding:11px 14px;font-size:14px;font-family:var(--mono);min-width:260px}
+  button{background:linear-gradient(180deg,var(--phos),#0f8f57);color:#04140c;font-weight:800;
+    border:0;border-radius:8px;padding:11px 20px;font-size:14px;cursor:pointer}
+  button:hover{filter:brightness(1.08)}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
+  .card .n{font-size:28px;font-weight:900;font-variant-numeric:tabular-nums}
+  .card .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line)}
+  th{color:var(--faint);font-size:11px;text-transform:uppercase;letter-spacing:.09em;font-weight:700}
+  td.mono{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+  .pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:800;font-family:var(--mono)}
+  .pill.ok{background:rgba(37,226,140,.14);color:var(--phos);border:1px solid rgba(37,226,140,.4)}
+  .pill.old{background:rgba(255,193,64,.13);color:var(--amber);border:1px solid rgba(255,193,64,.4)}
+  .tblwrap{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px}
+  .msg{color:var(--muted);padding:22px;text-align:center}
+  .foot{color:var(--faint);font-family:var(--mono);font-size:11px;margin-top:18px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Painel de Versões <span class="v">·</span> MOTOSCOPE V6</h1>
+  <p class="sub">Quem está em qual versão — dados reais reportados pelos aparelhos ao abrir o app.</p>
+
+  <div class="bar">
+    <input id="tok" type="password" placeholder="cole o token de admin">
+    <button onclick="load()">Ver aparelhos</button>
+    <span id="last" style="color:var(--faint);font-family:var(--mono);font-size:12px"></span>
+  </div>
+
+  <div class="cards" id="cards" style="display:none">
+    <div class="card"><div class="n" id="cTotal">–</div><div class="l">Aparelhos</div></div>
+    <div class="card"><div class="n" id="cLatest" style="color:var(--phos)">–</div><div class="l">Na última (<span id="lc">–</span>)</div></div>
+    <div class="card"><div class="n" id="cOld" style="color:var(--amber)">–</div><div class="l">Atrasados</div></div>
+    <div class="card"><div class="n" id="cAtivos" style="color:var(--blue)">–</div><div class="l">Ativos (7 dias)</div></div>
+  </div>
+
+  <div class="tblwrap">
+    <table>
+      <thead><tr><th>Aparelho</th><th>E-mail</th><th>Versão</th><th>Modelo</th><th>Último acesso</th><th>Device ID</th></tr></thead>
+      <tbody id="rows"><tr><td colspan="6" class="msg">Cole o token e clique em "Ver aparelhos".</td></tr></tbody>
+    </table>
+  </div>
+  <div class="foot" id="foot"></div>
+</div>
+
+<script>
+  const SUPA="https://wrmkhijsfcrcvrvypmns.supabase.co";
+  const ANON="sb_publishable_HMwfDU3R6IFYqjsfgX7VoQ_glwxjnZt";
+  let LATEST=134; // atualizar quando subir versao nova
+  function fmt(ts){ if(!ts) return "—"; const d=new Date(ts); return d.toLocaleString("pt-BR"); }
+  function ago(ts){ if(!ts) return 1e9; return (Date.now()-new Date(ts).getTime())/86400000; }
+  async function load(){
+    const tok=document.getElementById("tok").value.trim();
+    const rows=document.getElementById("rows");
+    if(!tok){ rows.innerHTML='<tr><td colspan="6" class="msg">Cole o token primeiro.</td></tr>'; return; }
+    rows.innerHTML='<tr><td colspan="6" class="msg">Carregando…</td></tr>';
+    try{
+      const r=await fetch(SUPA+"/rest/v1/rpc/painel_versoes",{method:"POST",
+        headers:{"Content-Type":"application/json","apikey":ANON,"Authorization":"Bearer "+ANON},
+        body:JSON.stringify({p_token:tok})});
+      const data=await r.json();
+      if(!Array.isArray(data)||data.length===0){
+        rows.innerHTML='<tr><td colspan="6" class="msg">Nenhum aparelho ainda (ou token errado). Assim que um app novo abrir, aparece aqui.</td></tr>';
+        document.getElementById("cards").style.display="none"; return;
+      }
+      const codes=data.map(d=>d.versao_code||0);
+      LATEST=Math.max(LATEST,...codes);
+      document.getElementById("lc").textContent=LATEST;
+      const latest=data.filter(d=>d.versao_code===LATEST).length;
+      const old=data.length-latest;
+      const ativos=data.filter(d=>ago(d.ultimo_acesso)<=7).length;
+      document.getElementById("cTotal").textContent=data.length;
+      document.getElementById("cLatest").textContent=latest;
+      document.getElementById("cOld").textContent=old;
+      document.getElementById("cAtivos").textContent=ativos;
+      document.getElementById("cards").style.display="grid";
+      rows.innerHTML=data.map(d=>{
+        const isLatest=d.versao_code===LATEST;
+        const pill='<span class="pill '+(isLatest?"ok":"old")+'">'+(d.versao_nome||("code "+d.versao_code))+' ('+d.versao_code+')</span>';
+        return '<tr><td>'+(d.aparelho||"—")+'</td><td>'+(d.cliente_email||"—")+'</td><td>'+pill+
+               '</td><td>'+(d.aparelho||"—")+'</td><td class="mono">'+fmt(d.ultimo_acesso)+
+               '</td><td class="mono">'+(d.device_id||"—")+'</td></tr>';
+      }).join("");
+      document.getElementById("last").textContent="atualizado "+new Date().toLocaleTimeString("pt-BR");
+      document.getElementById("foot").textContent=data.length+" aparelho(s) · última versão vista: "+LATEST;
+    }catch(e){
+      rows.innerHTML='<tr><td colspan="6" class="msg">Erro ao consultar. Confira o token e a conexão.</td></tr>';
+    }
+  }
+</script>
+</body>
+</html>
