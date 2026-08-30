@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MOTOSCOPE V6 — Pedidos de Personalização</title>
+<style>
+  :root{
+    --bg:#0a0a0c; --card:#15151b; --card2:#101015; --line:#26262f;
+    --red:#e11d1d; --red2:#ff3b3b; --ink:#f4f5f7; --mut:#8b8f99; --steel:#c7ccd6;
+    --ok:#1db954; --okbg:rgba(29,185,84,.12); --amber:#f5a623; --radius:16px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1000px 500px at 100% -5%, rgba(225,29,29,.14), transparent 60%),var(--bg);
+    color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;padding:22px 16px 60px}
+  .wrap{max-width:940px;margin:0 auto}
+  header{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px;flex-wrap:wrap}
+  .logo{font-weight:900;font-size:22px;letter-spacing:.5px;background:linear-gradient(180deg,#fff,#8b8f99);
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .logo b{color:var(--red2);-webkit-text-fill-color:var(--red2)}
+  .sub{color:var(--mut);font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase}
+  .count{background:var(--red);color:#fff;font-weight:800;font-size:13px;padding:6px 13px;border-radius:20px;box-shadow:0 6px 16px rgba(225,29,29,.3)}
+  .demo{display:inline-block;margin-left:8px;font-size:11px;color:var(--amber);border:1px solid rgba(245,166,35,.4);padding:3px 8px;border-radius:12px;vertical-align:middle}
+  /* token bar */
+  .tok{display:flex;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+  .tok input{flex:1;min-width:180px;background:#0d0d11;border:1px solid var(--line);color:var(--ink);border-radius:9px;padding:11px 12px;font-size:14px;outline:none}
+  .tok input:focus{border-color:var(--red)}
+  .tok .st{font-size:12.5px;color:var(--mut);padding:0 4px}
+  .tok .st.on{color:var(--ok)}
+  .minibtn{border:0;border-radius:9px;padding:11px 16px;font-weight:800;font-size:13.5px;cursor:pointer;color:#fff;background:linear-gradient(180deg,var(--red2),var(--red))}
+  .card{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:16px;display:grid;grid-template-columns:1fr;gap:16px}
+  @media(min-width:720px){.card{grid-template-columns:300px 1fr}}
+  .imgs{display:flex;flex-direction:column;gap:10px}
+  .shot{border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#000;position:relative}
+  .shot .lbl{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;letter-spacing:1px;padding:3px 8px;border-radius:8px;text-transform:uppercase}
+  .shot.splash{aspect-ratio:16/9}
+  .mini{display:flex;gap:10px}
+  .mini .shot{flex:1;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center}
+  .ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#4a4a55;font-weight:800;letter-spacing:1px;font-size:12px;text-align:center}
+  .ph.a{background:linear-gradient(135deg,#2a0d0d,#120c0c)}.ph.b{background:linear-gradient(135deg,#0d1a2a,#0c0f12)}.ph.c{background:linear-gradient(135deg,#1a0d2a,#100c12)}
+  img.real{width:100%;height:100%;object-fit:contain;background:#000;display:block}
+  .info{display:flex;flex-direction:column;gap:10px;min-width:0}
+  .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .badge{font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;letter-spacing:.5px}
+  .badge.novo{background:var(--okbg);color:var(--ok);border:1px solid rgba(29,185,84,.35)}
+  .badge.ok{background:rgba(139,143,153,.14);color:var(--mut);border:1px solid var(--line)}
+  .badge.pago{background:rgba(29,185,84,.16);color:#22c55e;border:1px solid rgba(29,185,84,.45)}
+  .badge.nao{background:rgba(245,166,35,.14);color:#f5a623;border:1px solid rgba(245,166,35,.45)}
+  .when{color:var(--mut);font-size:12px;margin-left:auto}
+  .nome{font-size:22px;font-weight:800;color:#fff;line-height:1.1}
+  .field{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--steel)}
+  .field .k{color:var(--mut);min-width:78px;font-size:12.5px;text-transform:uppercase;letter-spacing:.5px}
+  .field a{color:var(--red2);text-decoration:none}
+  .actions{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap}
+  .btn{border:0;border-radius:11px;padding:12px 18px;font-size:14.5px;font-weight:800;cursor:pointer;color:#fff}
+  .btn.ok{background:linear-gradient(180deg,#22c55e,#16a34a);box-shadow:0 6px 16px rgba(29,185,84,.28)}
+  .btn.gh{background:#20202a;border:1px solid var(--line);color:var(--steel)}
+  .btn.gh:hover{border-color:var(--red)}
+  .btn[disabled]{opacity:.55;cursor:default;box-shadow:none}
+  .empty{text-align:center;color:var(--mut);padding:50px 10px;border:1px dashed var(--line);border-radius:var(--radius)}
+  .note{color:var(--mut);font-size:12px;text-align:center;margin-top:18px;line-height:1.6}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <div class="logo">MOTOSCOPE <b>V6</b></div>
+        <div class="sub">Pedidos de personalização</div>
+      </div>
+      <div><span class="count" id="count">—</span><span class="demo" id="demoTag" style="display:none">exemplo</span></div>
+    </header>
+
+    <div class="tok" style="display:none">
+      <input type="password" id="token" placeholder="Cole aqui o seu token de dono" autocomplete="off">
+      <button class="minibtn" id="conectar">Conectar</button>
+      <span class="st" id="st">não conectado — mostrando exemplo</span>
+    </div>
+
+    <div id="list"></div>
+
+    <div class="note">
+      Cada pedido cai aqui automaticamente quando o cliente envia o formulário. Você revisa as imagens,
+      clica <b>Aprovar e publicar</b> e o app dele se veste sozinho — sem contatar ninguém.
+    </div>
+  </div>
+
+<script>
+const SUPA="https://wrmkhijsfcrcvrvypmns.supabase.co";
+const ANON="sb_publishable_HMwfDU3R6IFYqjsfgX7VoQ_glwxjnZt";
+const H={apikey:ANON,Authorization:"Bearer "+ANON,"Content-Type":"application/json"};
+const $=id=>document.getElementById(id);
+let TOKEN="pdn_ADM_9xKq2mZ7rT4vN8wLj6bHs3dF_2026";
+
+const HINT='<div class="empty">Cole o seu token acima e clique <b>Conectar</b> para ver os pedidos.</div>';
+
+function ago(iso){
+  if(!iso) return "há pouco";
+  try{ const m=Math.floor((Date.now()-new Date(iso))/60000);
+    if(m<1)return "agora"; if(m<60)return "há "+m+" min";
+    const h=Math.floor(m/60); if(h<24)return "há "+h+" h"; return "há "+Math.floor(h/24)+" d"; }catch(e){return "";}
+}
+function waLink(w){return "https://wa.me/55"+(w||"").replace(/\D/g,"");}
+
+function render(items,pagos){
+  const novos=items.filter(p=>p.status==="novo").length;
+  $("count").textContent = novos+(novos===1?" novo":" novos");
+  const list=$("list"); list.innerHTML="";
+  if(!items.length){ list.innerHTML=`<div class="empty">Nenhum pedido no momento. 👍</div>`; return; }
+  items.forEach(p=>{
+    const done=p.status==="aprovado";
+    const pg=(pagos&&pagos[(p.email||'').toLowerCase()])||'';
+    const pgBadge = pg==='pago'
+      ? '<span class="badge pago">✅ PAGO</span>'
+      : (pg ? '<span class="badge nao">⚠️ '+pg+'</span>' : '<span class="badge nao">⚠️ sem pagamento</span>');
+    const imgs = p.ph
+      ? `<div class="shot splash"><span class="lbl">Abertura</span><div class="ph a">FOTO DA ABERTURA</div></div>
+         <div class="mini"><div class="shot"><span class="lbl">Avatar</span><div class="ph b">AO LADO<br>DO NOME</div></div>
+         <div class="shot"><span class="lbl">Marca d'água</span><div class="ph c">LOGO<br>EMPRESA</div></div></div>`
+      : `<div class="shot splash"><span class="lbl">Abertura</span><img class="real" src="${p.splash_b64||''}"></div>
+         <div class="mini"><div class="shot"><span class="lbl">Avatar</span><img class="real" src="${p.avatar_b64||''}"></div>
+         <div class="shot"><span class="lbl">Marca d'água</span><img class="real" src="${p.watermark_b64||''}"></div></div>`;
+    const el=document.createElement("div"); el.className="card";
+    el.innerHTML=`<div class="imgs">${imgs}</div>
+      <div class="info">
+        <div class="row"><span class="badge ${done?'ok':'novo'}">${done?'✓ Publicado':'● Novo pedido'}</span>
+          ${pgBadge}<span class="when">${ago(p.criado_em)}</span></div>
+        <div class="nome">${p.nome||'(sem nome)'}</div>
+        <div class="field"><span class="k">E-mail</span><span>${p.email}</span></div>
+        <div class="field"><span class="k">WhatsApp</span><a href="${waLink(p.whatsapp)}" target="_blank">${p.whatsapp||'—'}</a></div>
+        <div class="actions">
+          <button class="btn ok" ${done?'disabled':''}>${done?'Publicado ✓':'Aprovar e publicar'}</button>
+          <button class="btn gh">Baixar as 3 imagens</button>
+        </div>
+      </div>`;
+    const [aprBtn,dlBtn]=el.querySelectorAll("button");
+    if(!done){ aprBtn.onclick=()=>aprovar(p,aprBtn); } dlBtn.onclick=()=>baixar(p);
+    list.appendChild(el);
+  });
+}
+
+async function carregar(){
+  if(!TOKEN){ $("list").innerHTML=HINT; $("count").textContent="—"; return; }
+  $("st").textContent="carregando...";
+  try{
+    const [rp,rc]=await Promise.all([
+      fetch(SUPA+"/rest/v1/rpc/listar_pedidos",{method:"POST",headers:H,body:JSON.stringify({p_token:TOKEN})}),
+      fetch(SUPA+"/rest/v1/rpc/painel_clientes",{method:"POST",headers:H,body:JSON.stringify({p_token:TOKEN})})
+    ]);
+    const data=await rp.json();
+    if(!Array.isArray(data)){ throw new Error("resposta inesperada"); }
+    let clientes=[]; try{ clientes=await rc.json(); }catch(e){}
+    const pagos={};
+    if(Array.isArray(clientes)) clientes.forEach(c=>{ const e=(c.email||'').toLowerCase(); if(e&&pagos[e]!=='pago') pagos[e]=c.situacao; });
+    $("st").textContent="conectado ✓"; $("st").className="st on";
+    localStorage.setItem("mscope_admin_token",TOKEN);
+    render(data,pagos);
+  }catch(e){
+    $("st").textContent="token inválido ou sem conexão"; $("st").className="st";
+    $("list").innerHTML='<div class="empty">Não consegui carregar. Confira o token e tente de novo.</div>';
+  }
+}
+
+async function aprovar(p,btn){
+  btn.disabled=true; btn.textContent="Publicando...";
+  try{
+    const body={p_token:TOKEN,p_email:p.email,p_nome:p.nome,
+      p_logo_url:p.avatar_b64, p_splash_url:p.splash_b64, p_watermark_url:p.watermark_b64};
+    const r=await fetch(SUPA+"/rest/v1/rpc/set_branding",{method:"POST",headers:H,body:JSON.stringify(body)});
+    const t=(await r.text()).replace(/"/g,"");
+    if(t!=="ok") throw new Error(t);
+    await fetch(SUPA+"/rest/v1/rpc/marcar_pedido_aprovado",{method:"POST",headers:H,body:JSON.stringify({p_token:TOKEN,p_id:p.id})});
+    carregar();
+  }catch(e){ btn.disabled=false; btn.textContent="Aprovar e publicar"; alert("Não consegui publicar: "+e.message); }
+}
+
+function baixar(p){
+  [["abertura",p.splash_b64],["avatar",p.avatar_b64],["marcadagua",p.watermark_b64]].forEach(([n,d])=>{
+    if(!d) return; const a=document.createElement("a"); a.href=d;
+    a.download=(p.nome||"cliente").replace(/\W+/g,"_")+"_"+n+".jpg"; a.click();
+  });
+}
+
+$("conectar").onclick=()=>{ TOKEN=$("token").value.trim(); carregar(); };
+$("token").addEventListener("keydown",e=>{ if(e.key==="Enter"){TOKEN=$("token").value.trim();carregar();} });
+
+// auto-conecta se ja salvou o token antes
+$("token").value=TOKEN; carregar();
+</script>
+</body>
+</html>
