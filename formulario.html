@@ -205,6 +205,9 @@ function toDataURL(file,maxDim,quality){
   });
 }
 
+// pre-preenche o e-mail vindo do app (?email=...) e trava o campo
+try{const qp=new URLSearchParams(location.search).get("email");if(qp){const ef=$("email");ef.value=qp;ef.readOnly=true;ef.style.opacity="0.75";}}catch(e){}
+
 $("form").addEventListener("submit",async e=>{
   e.preventDefault();
   const err=$("err"); err.textContent="";
@@ -225,6 +228,8 @@ $("form").addEventListener("submit",async e=>{
     const body={p_email:email,p_whatsapp:whats,p_nome:nome,p_splash:splash,p_avatar:avatar,p_watermark:wm};
     const r=await fetch(SUPA+"/rest/v1/rpc/enviar_pedido_marca",{method:"POST",headers:H,body:JSON.stringify(body)});
     const t=(await r.text()).replace(/"/g,"");
+    if(t==="nao_assinante"){err.textContent="Este e-mail ainda não tem assinatura ativa. Assine o MOTOSCOPE para personalizar o seu app (use o mesmo e-mail da compra).";btn.disabled=false;btn.textContent="ENVIAR PERSONALIZAÇÃO";return;}
+    if(t==="email_invalido"){err.textContent="Confira o e-mail — use exatamente o mesmo da sua compra.";btn.disabled=false;btn.textContent="ENVIAR PERSONALIZAÇÃO";return;}
     if(!r.ok||t!=="ok"){throw new Error(t||("HTTP "+r.status));}
     $("form").style.display="none";
     $("done").classList.add("show");
