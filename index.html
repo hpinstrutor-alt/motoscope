@@ -78,6 +78,8 @@
   @media (prefers-reduced-motion:reduce){ .dl-arrow{animation:none} }
   .dlbox .lbl{font-family:var(--mono); font-size:clamp(12.5px,3.4vw,15px); letter-spacing:.1em; text-transform:uppercase; color:var(--phos); margin-top:10px; font-weight:800}
   .dlbox .sub2{font-size:12.5px; color:var(--faint); margin-top:5px}
+  .dlbox .guia{display:inline-flex; align-items:center; gap:7px; margin-top:13px; text-decoration:none; font-family:var(--mono); font-size:12.5px; letter-spacing:.05em; color:var(--ink); font-weight:700; border:1px solid var(--line); border-radius:999px; padding:9px 16px; transition:border-color .12s ease, color .12s ease}
+  .dlbox .guia:hover{border-color:var(--phos); color:var(--phos)}
 
   /* scope strip */
   .scope{margin:30px auto 0; max-width:960px; border:1px solid var(--line); border-radius:6px; background:linear-gradient(180deg,#0b0f16,#090c11); box-shadow:0 20px 60px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.02); overflow:hidden}
@@ -189,6 +191,7 @@
         <span class="dl-arrow r" aria-hidden="true">◀</span>
       </div>
       <div class="sub2">Instale no seu Android e use grátis por 30 dias — sem cartão.</div>
+      <a class="guia" href="guia-instalacao-motoscope-v6.pdf" target="_blank" rel="noopener">📄 Baixar o guia de instalação (PDF)</a>
     </div>
 
     <div class="scope" aria-hidden="true">
