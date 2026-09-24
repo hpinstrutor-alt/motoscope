@@ -70,11 +70,18 @@ const H={"apikey":ANON,"Authorization":"Bearer "+ANON,"Content-Type":"applicatio
 const $=id=>document.getElementById(id);
 let TOKEN=localStorage.getItem("mscope_admin_token")||"";
 
+const WELCOME=
+"Opa! 👋 Aqui é o HP Instrutor.\n\n"+
+"Seja muito bem-vindo ao MOTOSCOPE V6! Vi que você ativou seus 30 dias grátis. 🎉\n\n"+
+"Nesse período você já pode usar o osciloscópio completo, com os testes pré-configurados, e ainda mandar relatórios pros seus clientes direto no WhatsApp.\n\n"+
+"Qualquer dúvida na instalação ou no uso, é só me chamar aqui que eu te ajudo pessoalmente. 👊\n\n"+
+"Bom diagnóstico! 🏍️🔧";
+
 function waLink(raw){
   let d=(raw||"").replace(/\D/g,"");
   if(!d) return null;
   if(d.length<=11) d="55"+d;            // BR sem codigo do pais
-  return "https://wa.me/"+d;
+  return "https://wa.me/"+d+"?text="+encodeURIComponent(WELCOME);
 }
 function fmtData(iso){
   try{const dt=new Date(iso);return dt.toLocaleDateString("pt-BR")+" "+dt.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});}
