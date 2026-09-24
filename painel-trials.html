@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MOTOSCOPE V6 — Trials Ativos</title>
+<style>
+  :root{
+    --bg:#0a0a0c; --card:#12161f; --card2:#0c1119; --line:#243040;
+    --ink:#eef2f6; --mut:#8b95a8; --faint:#5b6474;
+    --red:#e11d1d; --red2:#ff3b3b; --phos:#25e28c; --amber:#f5a623; --wa:#25D366;
+    --mono:ui-monospace,"SF Mono","Cascadia Mono",Menlo,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    background-image:radial-gradient(900px 460px at 90% -8%,rgba(37,226,140,.10),transparent 60%),
+                     radial-gradient(700px 420px at 5% 2%,rgba(225,29,29,.10),transparent 60%);
+    -webkit-font-smoothing:antialiased;min-height:100vh}
+  .wrap{max-width:640px;margin:0 auto;padding:18px 16px 60px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  .mark{font-weight:900;font-size:20px;letter-spacing:.01em}
+  .mark .v{color:var(--red2);font-style:italic}
+  .mark small{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.22em;color:var(--phos);text-transform:uppercase;font-weight:700;margin-top:2px}
+  .btn{font-family:var(--sans);font-weight:800;font-size:14px;border:1px solid var(--line);background:#11161e;color:var(--ink);
+    border-radius:10px;padding:10px 16px;cursor:pointer}
+  .btn:active{transform:translateY(1px)}
+  .btn.p{background:linear-gradient(180deg,var(--phos),#0f8f57);color:#04140c;border:0}
+  .count{font-family:var(--mono);font-size:12.5px;color:var(--mut);letter-spacing:.08em;margin:2px 0 14px;text-transform:uppercase}
+  .count b{color:var(--phos)}
+  /* token gate */
+  .gate{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 16px;text-align:center}
+  .gate p{color:var(--mut);font-size:14px;margin:0 0 14px}
+  .gate input{width:100%;background:#0c1015;border:1px solid var(--line);color:var(--ink);border-radius:10px;
+    padding:13px 14px;font-size:15px;font-family:var(--mono);margin-bottom:12px}
+  /* cards */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px;
+    display:flex;gap:14px;align-items:center}
+  .days{flex:0 0 auto;width:78px;text-align:center;border-radius:12px;padding:10px 6px;background:var(--card2);border:1px solid var(--line)}
+  .days .n{font-size:30px;font-weight:900;line-height:1}
+  .days .u{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-top:3px}
+  .ok .n{color:var(--phos)} .warn .n{color:var(--amber)} .bad .n{color:var(--red2)}
+  .bad .venc{font-size:14px;font-weight:900;color:var(--red2);line-height:1.05}
+  .info{flex:1 1 auto;min-width:0}
+  .info .em{font-weight:700;font-size:15px;word-break:break-all}
+  .info .dt{font-family:var(--mono);font-size:11.5px;color:var(--faint);margin-top:4px;letter-spacing:.04em}
+  .wa{display:inline-flex;align-items:center;gap:7px;margin-top:9px;background:var(--wa);color:#04140c;
+    font-weight:800;font-size:13.5px;text-decoration:none;padding:8px 13px;border-radius:999px}
+  .empty{text-align:center;color:var(--mut);padding:50px 16px;font-size:15px}
+  .empty .big{font-size:40px;margin-bottom:10px}
+  .err{color:var(--red2);font-size:13.5px;text-align:center;margin-top:10px}
+  .foot{font-family:var(--mono);font-size:10.5px;color:var(--faint);text-align:center;margin-top:20px;letter-spacing:.06em}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="mark">MOTOSCOPE <span class="v">V6</span><small>Trials Ativos</small></div>
+    <button class="btn" id="reload">↻ Atualizar</button>
+  </header>
+  <div class="count" id="count"></div>
+  <div id="app"></div>
+  <div class="foot">Painel do dono · dados ao vivo do Supabase</div>
+</div>
+
+<script>
+const SUPA="https://wrmkhijsfcrcvrvypmns.supabase.co";
+const ANON="sb_publishable_HMwfDU3R6IFYqjsfgX7VoQ_glwxjnZt";
+const H={"apikey":ANON,"Authorization":"Bearer "+ANON,"Content-Type":"application/json"};
+const $=id=>document.getElementById(id);
+let TOKEN=localStorage.getItem("mscope_admin_token")||"";
+
+function waLink(raw){
+  let d=(raw||"").replace(/\D/g,"");
+  if(!d) return null;
+  if(d.length<=11) d="55"+d;            // BR sem codigo do pais
+  return "https://wa.me/"+d;
+}
+function fmtData(iso){
+  try{const dt=new Date(iso);return dt.toLocaleDateString("pt-BR")+" "+dt.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});}
+  catch(e){return iso||"";}
+}
+
+function gate(){
+  $("count").textContent="";
+  $("app").innerHTML=
+   '<div class="gate"><p>Cole a sua senha de dono para ver os trials:</p>'
+  +'<input id="tk" type="password" placeholder="senha de dono" autocomplete="off">'
+  +'<button class="btn p" id="go" style="width:100%">ENTRAR</button>'
+  +'<div class="err" id="e"></div></div>';
+  $("go").onclick=()=>{const v=$("tk").value.trim();if(!v)return;TOKEN=v;localStorage.setItem("mscope_admin_token",v);carregar();};
+  $("tk").addEventListener("keydown",e=>{if(e.key==="Enter")$("go").click();});
+}
+
+async function carregar(){
+  if(!TOKEN){gate();return;}
+  $("app").innerHTML='<div class="empty"><div class="big">⏳</div>Carregando...</div>';
+  try{
+    const r=await fetch(SUPA+"/rest/v1/rpc/listar_trials",{method:"POST",headers:H,body:JSON.stringify({p_token:TOKEN})});
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    const rows=await r.json();
+    if(!Array.isArray(rows)){throw new Error("resposta invalida");}
+    if(rows.length===0){
+      // token errado devolve vazio tb; distingue guardando flag simples
+      $("count").innerHTML="<b>0</b> em teste";
+      $("app").innerHTML='<div class="empty"><div class="big">🌱</div>Nenhum trial no momento.<br><span style="font-size:12.5px;color:var(--faint)">(se acha que deveria ter, confira a senha no botão Atualizar)</span></div>';
+      return;
+    }
+    const ativos=rows.filter(x=>!x.vencido).length;
+    $("count").innerHTML="<b>"+rows.length+"</b> no total · <b style='color:var(--amber)'>"+ativos+"</b> ainda em teste";
+    $("app").innerHTML=rows.map(x=>{
+      const d=x.dias_restantes||0;
+      const cls=x.vencido?"bad":(d<=7?"warn":"ok");
+      const daysHtml=x.vencido
+        ? '<div class="venc">VENCIDO</div><div class="u">renovar</div>'
+        : '<div class="n">'+d+'</div><div class="u">'+(d===1?"dia":"dias")+'</div>';
+      const wa=waLink(x.contato_whatsapp);
+      const waHtml=wa?('<a class="wa" href="'+wa+'" target="_blank" rel="noopener">💬 Chamar no WhatsApp</a>'):'';
+      return '<div class="card"><div class="days '+cls+'">'+daysHtml+'</div>'
+        +'<div class="info"><div class="em">'+(x.cliente_email||"(sem e-mail)")+'</div>'
+        +'<div class="dt">vence: '+fmtData(x.valid_until)+'</div>'
+        +waHtml+'</div></div>';
+    }).join("");
+  }catch(ex){
+    $("app").innerHTML='<div class="empty"><div class="big">⚠️</div>Não consegui carregar.<div class="err">'+ex.message+'</div>'
+      +'<button class="btn" style="margin-top:14px" onclick="localStorage.removeItem(\'mscope_admin_token\');location.reload()">Trocar senha</button></div>';
+  }
+}
+
+$("reload").onclick=carregar;
+carregar();
+</script>
+</body>
+</html>
