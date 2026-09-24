@@ -64,11 +64,20 @@
   .cta-row{display:flex; gap:12px; justify-content:center; flex-wrap:wrap; align-items:center}
   .cta-sub{font-family:var(--mono); font-size:11.5px; letter-spacing:.1em; color:var(--faint); margin:12px 0 0}
   .dlbox{text-align:center; margin:26px 0 0}
-  .dlbox a{display:inline-block; text-decoration:none}
-  .dlbox img{max-width:360px; width:82%; height:auto; filter:drop-shadow(0 10px 28px rgba(37,226,140,.35)); transition:transform .15s ease}
-  .dlbox a:hover img{transform:translateY(-3px) scale(1.02)}
-  .dlbox .lbl{font-family:var(--mono); font-size:13.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--phos); margin-top:10px; font-weight:800}
-  .dlbox .sub2{font-size:12px; color:var(--faint); margin-top:4px}
+  .dlbox .dl-titulo{font-family:var(--mono); font-size:clamp(13px,3.4vw,16px); letter-spacing:.06em; text-transform:uppercase; color:#fff; font-weight:800; margin-bottom:10px}
+  .dlbox .dl-titulo b{color:var(--phos)}
+  .dl-row{display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:nowrap}
+  .dl-row a{display:inline-block; text-decoration:none; flex:0 1 auto; min-width:0}
+  .dl-row img{max-width:min(320px,58vw); width:100%; height:auto; filter:drop-shadow(0 10px 28px rgba(37,226,140,.45)); transition:transform .15s ease}
+  .dl-row a:hover img{transform:translateY(-3px) scale(1.02)}
+  .dl-arrow{flex:0 0 auto; font-size:clamp(26px,7vw,42px); color:var(--phos); text-shadow:0 0 14px rgba(37,226,140,.85); font-weight:900; line-height:1; user-select:none}
+  .dl-arrow.l{animation:nudgeR .8s ease-in-out infinite}
+  .dl-arrow.r{animation:nudgeL .8s ease-in-out infinite}
+  @keyframes nudgeR{0%,100%{transform:translateX(0)} 50%{transform:translateX(12px)}}
+  @keyframes nudgeL{0%,100%{transform:translateX(0)} 50%{transform:translateX(-12px)}}
+  @media (prefers-reduced-motion:reduce){ .dl-arrow{animation:none} }
+  .dlbox .lbl{font-family:var(--mono); font-size:clamp(12.5px,3.4vw,15px); letter-spacing:.1em; text-transform:uppercase; color:var(--phos); margin-top:10px; font-weight:800}
+  .dlbox .sub2{font-size:12.5px; color:var(--faint); margin-top:5px}
 
   /* scope strip */
   .scope{margin:30px auto 0; max-width:960px; border:1px solid var(--line); border-radius:6px; background:linear-gradient(180deg,#0b0f16,#090c11); box-shadow:0 20px 60px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.02); overflow:hidden}
@@ -170,11 +179,16 @@
     <p class="cta-sub">Ativação no mesmo dia · Personalizado só pra você</p>
 
     <div class="dlbox">
-      <a href="https://github.com/hpinstrutor-alt/motoscope/releases/latest/download/MOTOSCOPE-V6.apk" download>
-        <img src="botao-obdbox9.png" alt="Baixar o teste grátis do MOTOSCOPE V6">
-        <div class="lbl">⬇ Baixar o teste grátis — 30 dias</div>
-        <div class="sub2">Instale no seu Android e use grátis por 30 dias. Sem cartão.</div>
-      </a>
+      <div class="dl-titulo">👇 <b>Baixe e teste grátis por 30 dias</b> 👇</div>
+      <div class="dl-row">
+        <span class="dl-arrow l" aria-hidden="true">➤</span>
+        <a href="https://github.com/hpinstrutor-alt/motoscope/releases/latest/download/MOTOSCOPE-V6.apk" download>
+          <img src="botao-obdbox9.png" alt="Baixar o teste grátis do MOTOSCOPE V6">
+          <div class="lbl">⬇ Clique aqui e baixe o teste grátis</div>
+        </a>
+        <span class="dl-arrow r" aria-hidden="true">◀</span>
+      </div>
+      <div class="sub2">Instale no seu Android e use grátis por 30 dias — sem cartão.</div>
     </div>
 
     <div class="scope" aria-hidden="true">
